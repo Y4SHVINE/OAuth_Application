@@ -9,24 +9,53 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 </head>
 
-<body>
+<body id="body">
   <div class="section">
-    <h1>Contact Information</h1>
-    <form action="/formsubmit" method="POST">
-      <input type="text" name="address" value="Maharagama" placeholder="">
-      <input type="text" name="phone" value="01123456789" placeholder="">
-      <button type="submit" id="contactSubmit" class="btn btn-primary btn-block btn-large">Submit</button>
-    </form>
+    <h1>User Information</h1>
+    <label>Name    : </label><label id="uname"></label>
+    <br>
+    <label>Email   : </label><label id="email"></label>
+    <br>
+    <label>GitHub  : </label><a id="git"></a>
+    <br>
+    <label>NicName : </label><label id="nic"></label>
   </div>
   <script type="text/javascript">
-    $.ajax({
-      url: 'http://localhost:3000/token',
-      cache: false,
-      success: function(token) {
-        console.log(token);
-        $("#contactSubmit").before('<input type="text" name="_csrf" value="' + token + '" hidden>');
-      }
-    });
+    function getUserData() {
+      console.log('get User Data start');
+      var urlParams = new URLSearchParams(window.location.search);
+      var gcode = urlParams.get('code');
+      $.ajax({
+        type: "POST",
+        data: { code: gcode },
+        url: 'http://localhost:3000/userData',
+        cache: false,
+        success: function (userData) {
+          var image = document.createElement("img");
+          var imageParent = document.getElementById("body");
+          image.id = "id";
+          image.src = userData.avatar_url;
+          imageParent.appendChild(image);
+
+          var name = document.getElementById("uname");
+          name.innerHTML = userData.name;
+
+          var email = document.getElementById("email");
+          email.innerHTML = userData.name;
+
+          var git = document.getElementById("git");
+          git.innerHTML = userData.html_url;
+          git.href = userData.html_url;
+
+          var nicn = document.getElementById("nic");
+          nicn.innerHTML = userData.login;
+          
+          console.log(userData);
+        }
+      });
+    }
+
+    getUserData();
   </script>
 </body>
 

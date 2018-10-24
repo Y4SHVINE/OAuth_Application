@@ -1,7 +1,5 @@
 const express = require('express');
-const session = require('express-session');
 const path = require('path');
-const crypto = require("crypto");
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
@@ -28,24 +26,31 @@ app.get('/form', function (req, res) {
   res.render('views/form');
 });
 
-
-app.get('/token', function (req, res) {
-  res.json(req.session.csrf);
-});
-
-app.post('/login', function (req, res) {
+app.post('/userData', function (req, res) {
   axios.post('https://github.com/login/oauth/access_token', {
     "client_id": "8c160841e901a6d02c3a",
     "client_secret": "25436e26f0efcbcdf295096f6c9166f5d216649a",
     "code": req.body.code,
     "redirect_uri": "http://localhost:3000/form",
-    "state": "123"
+    "state": "123456"
   }).then(function (response) {
-    res.send({ "access_token": response.data.split('&')[0].split('=')[1] })
+    console.log(response.data.split('&')[0].split('=')[1]);
+    getUserData(req, res,response.data.split('&')[0].split('=')[1]);
   }).catch(function (error) {
     console.log(error);
   });
 })
+
+//get user data
+function getUserData(req, res,tocken) {
+  axios.get('https://api.github.com/user?access_token=' + tocken)
+    .then(function (userdata) {
+      res.send(userdata.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
 
 app.listen(PORT, () => {
   console.log(`Listening on http://localhost:${PORT}`);
